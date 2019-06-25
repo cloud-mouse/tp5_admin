@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>幻灯片列表</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+	<style type="text/css">
+	.header span{background: #009688;margin-left: 30px;padding: 10px;color: #fff}
+	.header div{border-bottom: 2px solid #009688;margin-top: 20px}
+	.header button{float: right;margin-right: 30px}
+	
+	</style>
+</head>
+<body style="padding: 15px">
+
+	<div class="header">
+		<span>幻灯片列表</span>
+		<button  class="layui-btn layui-btn-xs" onclick="add()">添加</button>
+		<div></div>
+	</div>
+
+	<table class="layui-table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>排序</th>
+				<th>标题</th>
+				<th>URL</th>
+				<th>图片</th>
+				<th>添加时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.data" id='vo'}
+			<tr>
+				<td>{$vo.id}</td>
+				<td>{$vo.ord}</td>
+				<td>{$vo.title}</td>
+				<td>{$vo.url}</td>
+				<td><img src="{$vo.img}" alt="" height="30px"> </td>
+				<td>{:date('Y-m-d H:i:s',$vo.add_time)}</td>
+				<td>
+					<button class="layui-btn layui-btn-xs" onclick="add({$vo.id})">编辑</button>
+					<button class="layui-btn layui-btn-danger layui-btn-xs" onclick="del({$vo.id})">删除</button>
+				</td>
+			</tr>
+			{/volist}
+		</tbody>
+	</table>
+
+	<script type="text/javascript">
+		layui.use(['layer'],function(){
+			layer = layui.layer;
+			$ = layui.jquery;
+		});
+
+		// 添加管理员事件
+		function add(id){
+			layer.open({
+			  	type: 2,
+			  	title: id>0?'编辑幻灯片':'添加幻灯片',
+			  	shade: 0.3,
+			  	area:['900px','700px'],
+			  	content: '/admins.php/admins/slide/add?id='+ id 
+			});
+		}
+
+		//删除管理员
+		function del(id){
+			layer.confirm('确定要删除吗？',{
+				icon:3,
+				btn: ['确认','取消']
+
+			},function(){
+				$.post('/admins.php/admins/slide/delete',{'id':id},function(res){
+					if(res.code>0){
+						layer.alert(res.msg,{icon:2});
+					}else{
+						layer.msg(res.msg);
+						setTimeout(function(){window.location.reload();},1000);
+					}
+				},'json');
+			});
+		}
+	</script>
+	
+</body>
+</html>

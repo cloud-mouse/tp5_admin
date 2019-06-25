@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>充值记录</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+	<style type="text/css">
+	.header span{background: #009688;padding: 10px;color: #fff}
+	.header div{border-bottom: 2px solid #009688;margin-top: 20px}
+	.header button{float: right;margin-right: 30px}
+	
+	</style>
+</head>
+<body style="padding: 15px">
+
+	<div class="header">
+		<span>充值记录</span>
+		<div></div>
+	</div>
+	<div class="layui-form-item" style="margin-top: 15px">
+		<div class="layui-input-inline">
+			<input type="text" class="layui-input" name="wd" id="wd" value="{$data.wd}" placeholder="请输入要搜索的关键字"> 
+		</div>
+		<button class="layui-btn layui-btn-primary" onclick="searchs()"><i class="layui-icon">&#xe615;</i>搜索</button>
+	</div>
+
+	<table class="layui-table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>代理商账户</th>
+				<th>充值金额</th>
+				<th>充值方式</th>
+				<th>充值本金</th>
+				<th>赠送金额</th>
+				<th>充值时间</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.data.lists" id='vo'}
+			<tr>
+				<td>{$vo.id}</td>
+				<td>{$vo.uname}</td>
+				<td>{$vo.amounts}</td>
+				<td>{$vo.payway ==1 ? '线下' : ($vo.payway==2 ? '支付宝' :'微信') }</td>
+				<td>{$vo.principal}</td>
+				<td>{$vo.bonus}</td>
+				<td>{:date('Y-m-d H:i:s',$vo.add_time)}</td>
+			</tr>
+			{/volist}
+		</tbody>
+	</table>
+	<div id="pages"></div>
+
+	<script type="text/javascript">
+		layui.use(['layer','laypage'],function(){
+			layer = layui.layer;
+			laypage= layui.laypage;
+			$ = layui.jquery;
+
+			//执行一个laypage实例
+			laypage.render({
+			    elem: 'pages' //注意，这里的 test1 是 ID，不用加 # 号
+			    ,count: {$data.data.total} //数据总数，从服务端得到
+			    ,limit: {$data.pagesize}
+			    ,curr: {$data.page} //获取起始页
+  				,hash: 'fenye' //自定义hash值
+			    ,jump: function(obj, first){
+			    //obj包含了当前分页的所有参数，比如：
+			    console.log(obj.curr); //得到当前页，以便向服务端请求对应页的数据。
+			    console.log(obj.limit); //得到每页显示的条数
+			    
+			    //首次不执行
+			    if(!first){
+			    	searchs(obj.curr);
+			    }
+			  }
+			});
+		});
+
+
+		// 搜索
+		function searchs(curpage){
+			var wd = $.trim($('#wd').val());
+			var url = '/index.php/index/financial/recharge?page='+curpage;
+			if(wd){
+				url += '&wd='+wd;
+			}
+			window.location.href = url;
+		}
+
+	</script>
+	
+</body>
+</html>

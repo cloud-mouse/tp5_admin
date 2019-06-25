@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>支付结果</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+	<style type="text/css">
+		p{text-align: center;padding: 10px 0;}
+	</style>
+</head>
+<body style="padding: 10px">
+	<input type="hidden" id="order_id" value="{$order_id}" > 
+    <img alt="微信扫码支付" id="img" style="display:block;margin: 30px auto;width:150px;height:150px;" src="https://www.kuaizhan.com/common/encode-png?large=true&data={$code_url}"/>
+	
+	<script type="text/javascript">
+		layui.use(['layer','form'],function(){
+			layer = layui.layer;
+			form = layui.form;
+			$ = layui.jquery;
+		});
+
+		
+    var time = setInterval("check()",3000);    //3秒查询一次是否支付成功
+
+    function check() {
+        var url = "{:url('/index/goods/orderstate')}";
+        var order_id = $("#order_id").val();
+        var param = {'order_id':order_id};
+        $.post(url,param,function(data){
+            data = JSON.parse(data);
+            if (data['trade_state'] == 'SUCCESS') {
+                time = window.clearInterval(time);
+                // 支付成功把二维码替换成支付成功图标
+                $("#img").attr('src','/static/img/success.png'); 
+                // console.log(data);
+                // window.location.href="{:url('/index/wxpay/notify')}";
+            }else{ 
+				
+                // console.log(data);
+            }
+        });
+    }
+		
+	</script>
+</body>
+</html>

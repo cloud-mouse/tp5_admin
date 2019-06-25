@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>修改信息</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+</head>
+<body style="padding: 10px">
+	<form class="layui-form">
+		<input type="hidden" name="id" value="{$data.users.id}">
+		<div class="layui-form-item">
+			<label class="layui-form-label">代理商账号</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" name="username" value="{$data.users.username}" {$data.users.id>0?'readonly':''} >
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">账号密码</label>
+			<div class="layui-input-block">
+				<input type="password" class="layui-input" name="password" value="{$data.users.password}">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">真实姓名</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" name="truename" value="{$data.users.truename}">
+			</div>
+		</div>
+		
+		<div class="layui-form-item">
+			<label class="layui-form-label">联系电话</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" name="phone" value="{$data.users.phone}">
+			</div>
+		</div>
+		
+		<div class="layui-form-item">
+			<label class="layui-form-label">账户金额</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" name="balance"  value="{$data.users.balance}" readonly>
+			</div>
+		</div>
+		
+		<div class="layui-form-item">
+			<label class="layui-form-label">账号等级</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" name="lid"  value="{$data.users.lid}" readonly>
+			</div>
+		</div>
+
+	</form>
+
+	<div class="layui-form-item">
+		<div class="layui-input-block">
+			<button class="layui-btn" onclick="doChange()">确认修改</button>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		layui.use(['layer','form'],function(){
+			layer = layui.layer;
+			form = layui.form;
+			$ = layui.jquery;
+		});
+
+		//保存修改
+		function doChange(){
+			var id = parseInt($('input[name="id"]').val());
+			var pwd = $.trim($('input[name="pwd"]').val());
+			var phone = $.trim($('input[name="phone"]').val());
+			var truename = $.trim($('input[name="truename"]').val());
+			if(isNaN(id) && pwd==''){
+				layer.alert('请输入密码',{icon:2});
+				return;
+			}else if(truename==''){
+				layer.alert('请输入真实姓名',{icon:2});
+				return;
+			}else if(phone==''){
+				layer.alert('请输入电话',{icon:2});
+				return;
+			}else{
+				$.post('/index.php/index/Users/doChange',$('form').serialize(),function(res){
+					if(res.code>0){
+						layer.alert(res.msg,{icon:2});
+					}else{
+						layer.msg(res.msg);
+						setTimeout(function(){parent.window.location.reload();},1000);
+					}
+			
+				},'json');
+			}
+			
+			
+		};
+		
+		
+	</script>
+</body>
+</html>

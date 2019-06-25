@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>用户管理</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+	<style type="text/css">
+	.header span{background: #009688;padding: 10px;color: #fff}
+	.header div{border-bottom: 2px solid #009688;margin-top: 20px}
+	.header button{float: right;margin-right: 30px}
+	
+	</style>
+</head>
+<body style="padding: 15px">
+
+	<div class="header">
+		<span>用户管理</span>
+		<button  class="layui-btn layui-btn-xs" onclick="add()">添加</button>
+		<div></div>
+	</div>
+
+	<table class="layui-table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>用户名</th>
+				<th>真实姓名</th>
+				<th>用户等级</th>
+				<th>账户状态</th>
+				<th>账户余额</th>
+				<th>添加时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.lists" id='vo'}
+			<tr>
+				<td>{$vo.id}</td>
+				<td>{$vo.username}</td>
+				<td>{$vo.truename}</td>
+				<td>{:isset($data['level'][$vo.lid])? $data['level'][$vo.lid]['title']:''}</td>
+				<td>{$vo.status==0 ? '正常': '<span style="color: red">禁用</span>'}</td>
+				<td>{$vo.balance}元</td>
+				<td>{:date('Y-m-d H:i:s',$vo.add_time)}</td>
+				<td>
+					<button class="layui-btn layui-btn-xs" onclick="add({$vo.id})">编辑</button>
+					<button class="layui-btn layui-btn-danger layui-btn-xs" onclick="del({$vo.id})">删除</button>
+					<button class="layui-btn layui-btn-primary layui-btn-xs" onclick="recharge({$vo.id})">充值</button>
+				</td>
+			</tr>
+			{/volist}
+		</tbody>
+	</table>
+
+	<script type="text/javascript">
+		layui.use(['layer'],function(){
+			layer = layui.layer;
+			$ = layui.jquery;
+		});
+
+		// 添加代理商
+		function add(id){
+			layer.open({
+			  	type: 2,
+			  	title: id>0?'编辑代理商':'添加代理商',
+			  	shade: 0.3,
+			  	area:['480px','600px'],
+			  	content: '/admins.php/admins/users/add?id='+ id 
+			});
+		}
+
+		//删除代理商
+		function del(id){
+			layer.confirm('确定要删除吗？',{
+				icon:3,
+				btn: ['确认','取消']
+
+			},function(){
+				$.post('/admins.php/admins/users/delete',{'id':id},function(res){
+					if(res.code>0){
+						layer.alert(res.msg,{icon:2});
+					}else{
+						layer.msg(res.msg);
+						setTimeout(function(){window.location.reload();},1000);
+					}
+				},'json');
+			});
+		}
+		
+		//代理商充值
+		function recharge(id){
+			layer.open({
+			  	type: 2,
+			  	title: '代理商充值',
+			  	shade: 0.3,
+			  	area:['480px','500px'],
+			  	content: '/admins.php/admins/users/recharge?id='+ id 
+			});
+		}
+		
+	</script>
+	
+</body>
+</html>

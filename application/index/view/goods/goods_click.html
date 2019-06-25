@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>添加商品</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+</head>
+<body style="padding: 10px">
+	<form class="layui-form">
+		<input type="hidden" name="gid" value="{$data.item.id}">
+		<div class="layui-form-item">
+			<label class="layui-form-label">商品标题</label>
+			<div class="layui-input-inline">
+				<input type="text" class="layui-input" name="title" value="{$data.item.title}" readonly>
+			</div>
+			
+			<label class="layui-form-label">商品价格</label>
+			<div class="layui-input-inline">
+				<input type="text" class="layui-input" name="goodsPrice" value="{$data.item.price}" readonly>
+			</div>
+		</div>
+
+		<div class="layui-form-item">
+			<label class="layui-form-label">商品库存</label>
+			<div class="layui-input-inline">
+				<input type="text" class="layui-input" name="stock" value="{$data.item.stock}" readonly>
+			</div>
+			
+			<label class="layui-form-label">商品图片</label>
+			<div class="layui-input-inline">
+				<img id="pre_img" src="{$data.item.img}" alt="" height="30" >
+				<input type="hidden" name="img" value="{$data.item.img}">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">商品描述</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" name="desc" value="{$data.item.desc}" readonly>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">支付账户</label>
+			<div class="layui-input-inline">
+				<input type="text" class="layui-input" name="uname" value="{$data.users.username}" readonly>
+				<input type="hidden" name="uid" value="{$data.users.id}">
+			</div>
+			<label class="layui-form-label">代理商等级</label>
+			<div class="layui-input-inline">
+				<input type="text" class="layui-input" name="uname" value="{$data.level.level}" readonly>
+			</div>
+			
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">客户姓名</label>
+			<div class="layui-input-inline">
+				<input type="text" class="layui-input" placeholder="请输入客户姓名" name="cname">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">客户电话</label>
+			<div class="layui-input-inline">
+				<input type="number" class="layui-input" maxlength="11"  placeholder="请输入电话" name="cphone">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">客户公司</label>
+			<div class="layui-input-inline">
+				<input type="text" class="layui-input"  placeholder="请输入客户公司" name="company">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">待支付猴币</label>
+			<div class="layui-input-inline">
+				<input type="number" class="layui-input" name="price" value="{$price}" readonly>
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<div class="layui-input-block">
+				<span style="color: red;">tips：使用猴币支付享受会员折扣，第三方支付，不享受折扣！</span>
+			</div>
+		</div>
+		
+	</form>
+
+	<div class="layui-form-item">
+		<div class="layui-input-block">
+			<div class="layui-input-inline">
+				<button class="layui-btn"  onclick="doPay(1)">猴币支付</button>
+			</div>
+			<div class="layui-input-inline">
+				<button class="layui-btn"  onclick="doPay(2)">微信支付</button>
+			</div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		layui.use(['layer','form'],function(){
+			layer = layui.layer;
+			form = layui.form;
+			$ = layui.jquery;
+		});
+
+		
+
+		//支付
+		function doPay(i){
+			var cname = $.trim($('input[name="cname"]').val());
+			var cphone = $.trim($('input[name="cphone"]').val());
+			var company = $.trim($('input[name="company"]').val());
+
+			if(cname==''){
+				layer.alert('请输入客户姓名',{icon:2});
+				return;
+			}else if(cphone==''){
+				layer.alert('请输入客户电话',{icon:2});
+				return;
+			}else if(cname==''){
+				layer.alert('请输入客户公司',{icon:2});
+				return;
+			}else{
+				if(i==1){
+					// 猴币支付
+					$.post('/index.php/index/goods/doPay',$('form').serialize(),function(res){
+						if(res.code>0){
+							layer.alert(res.msg,{icon:2});
+						}else{
+							layer.msg(res.msg);
+							setTimeout(function(){parent.window.location.reload();},1000);
+						}
+					
+					},'json');
+				}else if(i==2){
+					// 微信支付
+					$.post('/index.php/index/goods/doWxPay',$('form').serialize(),function(res){
+						if(res.code>0){
+							console.log(res)
+							layer.alert(res.msg,{icon:2});
+						}else{
+							console.log(res)
+							layer.open({
+								type: 2,
+							  	title: '请扫描二维码',
+							  	shade: 0.3,
+							  	area:['500px','410px'],
+							  	content: '/index.php/index/goods/payResult?order_id='+res.data.order_id+'&code_url=' + res.result.code_url
+							});
+						}
+					
+					},'json');
+				}
+				
+			}
+
+		};
+		
+		
+		
+	</script>
+</body>
+</html>

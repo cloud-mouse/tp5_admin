@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>商品列表</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+	<style type="text/css">
+	.header span{background: #009688;margin-left: 30px;padding: 10px;color: #fff}
+	.header div{border-bottom: 2px solid #009688;margin-top: 20px}
+	.header button{float: right;margin-right: 30px}
+	
+	</style>
+</head>
+<body style="padding: 15px">
+
+	<div class="header">
+		<span>商品列表</span>
+		<button  class="layui-btn layui-btn-xs" onclick="add()">添加</button>
+		<div></div>
+	</div>
+	<div class="layui-form-item" style="margin-top: 15px">
+		<div class="layui-input-inline">
+			<input type="text" class="layui-input" name="wd" id="wd" value="{$data.wd}" placeholder="请输入商品标题搜索"> 
+		</div>
+		<button class="layui-btn layui-btn-primary" onclick="searchs()"><i class="layui-icon">&#xe615;</i>搜索</button>
+	</div>
+
+	<table class="layui-table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>分类</th>
+				<th>标题</th>
+				<th>价格</th>
+				<th>图片</th>
+				<th>添加时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.data.lists" id='vo'}
+			<tr>
+				<td>{$vo.id}</td>
+				<td>{:isset($data['classfy'][$vo['pid']])? $data['classfy'][$vo['pid']]['title']:''}</td>
+				<td>{$vo.title}</td>
+				<td>{$vo.price}</td>
+				<td><img src="{$vo.img}" alt="" height="30px"></td>
+				<td>{:date('Y-m-d H:i:s',$vo.add_time)}</td>
+				<td>
+					<button class="layui-btn layui-btn-primary layui-btn-xs" onclick="changeStatus({$vo.id})">{$vo.status==1 ? '<span style="color: green">上架</span>': '<span style="color: gray">下架</span>'}</button>
+					<button class="layui-btn layui-btn-xs" onclick="add({$vo.id})">编辑</button>
+					<button class="layui-btn layui-btn-danger layui-btn-xs" onclick="del({$vo.id})">删除</button>
+				</td>
+			</tr>
+			{/volist}
+		</tbody>
+	</table>
+	<div id="pages"></div>
+
+	<script type="text/javascript">
+		layui.use(['layer','laypage'],function(){
+			layer = layui.layer;
+			laypage= layui.laypage;
+			$ = layui.jquery;
+
+			//执行一个laypage实例
+			laypage.render({
+			    elem: 'pages' //注意，这里的 test1 是 ID，不用加 # 号
+			    ,count: {$data.data.total} //数据总数，从服务端得到
+			    ,limit: {$data.pagesize}
+			    ,curr: {$data.page} //获取起始页
+  				,hash: 'fenye' //自定义hash值
+			    ,jump: function(obj, first){
+			    //obj包含了当前分页的所有参数，比如：
+			    console.log(obj.curr); //得到当前页，以便向服务端请求对应页的数据。
+			    console.log(obj.limit); //得到每页显示的条数
+			    
+			    //首次不执行
+			    if(!first){
+			    	searchs(obj.curr);
+			    }
+			  }
+			});
+		});
+
+		
+
+		// 添加管理员事件
+		function add(id){
+			layer.open({
+			  	type: 2,
+			  	title: id>0?'编辑商品':'添加商品',
+			  	shade: 0.3,
+			  	area:['800px','600px'],
+			  	content: '/admins.php/admins/Goods/add?id='+ id 
+			});
+		}
+
+		//删除管理员
+		function del(id){
+			layer.confirm('确定要删除吗？',{
+				icon:3,
+				btn: ['确认','取消']
+
+			},function(){
+				$.post('/admins.php/admins/Goods/delete',{'id':id},function(res){
+					if(res.code>0){
+						layer.alert(res.msg,{icon:2});
+					}else{
+						layer.msg(res.msg);
+						setTimeout(function(){window.location.reload();},1000);
+					}
+				},'json');
+			});
+		}
+
+		// 搜索
+		function searchs(curpage){
+			var wd = $.trim($('#wd').val());
+			var url = '/admins.php/admins/Goods/index?page='+curpage;
+			if(wd){
+				url += '&wd='+wd;
+			}
+			window.location.href = url;
+		}
+
+		// 改变上下架状态
+		function changeStatus(id){
+			$.post('/admins.php/admins/Goods/changeStatus',{'id': id},function(res){
+					if(res.code>0){
+						layer.alert(res.msg,{icon:2});
+					}else{
+						layer.msg(res.msg);
+						setTimeout(function(){window.location.reload();},1000);
+					}
+				},'json');
+		}
+	</script>
+	
+</body>
+</html>

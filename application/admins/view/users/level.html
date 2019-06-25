@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>代理等级</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+	<style type="text/css">
+	.header span{background: #009688;padding: 10px;color: #fff}
+	.header div{border-bottom: 2px solid #009688;margin-top: 20px}
+	.header button{float: right;margin-right: 30px}
+	
+	</style>
+</head>
+<body  style="padding: 15px">
+	<!-- 头部 -->
+	<div class="header">
+		<span>代理等级</span>
+		<button  class="layui-btn layui-btn-xs" onclick="add()">添加</button>
+		<div></div>
+	</div>
+		
+	<!-- 列表 -->
+	<table class="layui-table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>代理等级</th>
+				<th>折扣</th>
+				<th>等级描述</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.level" id='vo'}
+			<tr>
+				<td>{$vo.id}</td>
+				<td>{$vo.title}</td>
+				<td>{$vo.level}</td>
+				<td>{$vo.desc}</td>
+				<td>
+					<button class="layui-btn layui-btn-xs" onclick="add({$vo.id})">编辑</button>
+					<button class="layui-btn layui-btn-danger layui-btn-xs" onclick="del({$vo.id})">删除</button>
+				</td>
+				
+			</tr>
+			{/volist}
+		</tbody>
+	</table>
+
+	<script type="text/javascript">
+		layui.use(['layer'],function(){
+			layer = layui.layer;
+			$ = layui.jquery;
+		});
+
+		// 添加代理等级事件
+		function add(id){
+			layer.open({
+			  	type: 2,
+			  	title: id>0?'编辑代理等级':'添加代理等级',
+			  	shade: 0.3,
+			  	area:['400px','300px'],
+			  	content: '/admins.php/admins/users/addLevel?id='+ id 
+			});
+		}
+
+		//删除代理等级
+		function del(id){
+			layer.confirm('确定要删除吗？',{
+				icon:3,
+				btn: ['确认','取消']
+
+			},function(){
+				$.post('/admins.php/admins/users/deleteLevel',{'id':id},function(res){
+					if(res.code>0){
+						layer.alert(res.msg,{icon:2});
+					}else{
+						layer.msg(res.msg);
+						setTimeout(function(){window.location.reload();},1000);
+					}
+				},'json');
+			});
+		}
+	</script>
+	
+</body>
+</html>

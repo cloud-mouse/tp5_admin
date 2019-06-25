@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>菜单管理</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+	<style type="text/css">
+	.header span{background: #009688;margin-left: 30px;padding: 10px;color: #fff}
+	.header div{border-bottom: 2px solid #009688;margin-top: 20px}
+	.header button{float: right;margin-right: 30px}
+	
+	</style>
+</head>
+<body style="padding: 15px">
+	<!-- 头部 -->
+	<div class="header">
+		<span>菜单管理</span>
+		{if condition="$pid>0"}
+		<button  class="layui-btn layui-btn-xs"  onclick="back({$backid});return false;">返回上一级</button>
+		{/if}
+		<div></div>
+	</div>
+	<form class="layui-form">
+	<input type="hidden" name="pid" value="{$pid}">
+	<table class="layui-table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>排序</th>
+				<th>菜单名称</th>
+				<th>controller</th>
+				<th>method</th>
+				<th>是否隐藏</th>
+				<th>是否禁用</th>
+				<th> </th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.lists" id='vo'}
+			<tr>
+				<td>{$vo.mid}</td>
+				<td><input type="text" class="layui-input" name="oids[{$vo.mid}]" value="{$vo.oid}"></td>
+				<td><input type="text" class="layui-input" name="titles[{$vo.mid}]" value="{$vo.title}"></td>
+				<td><input type="text" class="layui-input" name="controller[{$vo.mid}]" value="{$vo.controller}"></td>
+				<td><input type="text" class="layui-input" name="methods[{$vo.mid}]" value="{$vo.method}"></td>
+				<td><input type="checkbox" lay-skin="primary" name="ishiddens[{$vo.mid}]" {$vo.ishidden==1? 'checked':''} title="{$vo.ishidden==1? '隐藏':'显示'}"></td>
+				<td><input type="checkbox" lay-skin="primary" name="status[{$vo.mid}]" {$vo.status==1? 'checked':''} title="{$vo.status==0? '正常':'禁用'}"></td>
+				<td><button class="layui-btn layui-btn-xs" onclick="child({$vo.mid});return false;">子菜单</button></td>
+			</tr>
+			{/volist}
+
+			<tr>
+				<td></td>
+				<td><input type="text" class="layui-input" name="oids[0]" ></td>
+				<td><input type="text" class="layui-input" name="titles[0]"></td>
+				<td><input type="text" class="layui-input" name="controller[0]"></td>
+				<td><input type="text" class="layui-input" name="methods[0]" ></td>
+				<td><input type="checkbox" lay-skin="primary" name="ishiddens[0]" title="隐藏" value="1"></td>
+				<td><input type="checkbox" lay-skin="primary" name="status[0]" title="禁用" value="1"></td>
+				<td></td>
+			</tr>
+
+		</tbody>
+	</table>
+
+	</form>
+	<button class="layui-btn" onclick="save()">保存</button>
+	<script type="text/javascript">
+		layui.use(['layer','form'],function(){
+			layer = layui.layer;
+			form = layui.form;
+			$ = layui.jquery;
+		});
+
+		// 子菜单点击
+		function child(pid){
+			window.location.href='/admins.php/admins/Menu/index?pid='+pid;
+		}
+
+		// 点击返回上一级
+		function back(pid){
+			window.location.href='/admins.php/admins/Menu/index?pid='+pid;
+		}
+
+		// 保存菜单
+		function save(){
+			$.post('/admins.php/admins/Menu/save',$('form').serialize(),function(res){
+					if(res.code>0){
+						layer.alert(res.msg,{icon:2});
+					}else{
+						layer.msg(res.msg);
+						setTimeout(function(){window.location.reload();},1000);
+					}
+
+				},'json');
+		}
+		
+	</script>
+	
+
+</body>
+</html>

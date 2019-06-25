@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>在线充值</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+	<style type="text/css">
+	.header span{background: #009688;padding: 10px;color: #fff}
+	.header div{border-bottom: 2px solid #009688;margin-top: 20px}
+	.header button{float: right;margin-right: 30px}
+	.layui-card-body{overflow: hidden;}
+	.layui-card-body p{padding: 5px 0;}
+	.layui-col-md6{padding: 7.5px;}
+	.layui-card-body li{ padding: 8.5px;}
+	.list-item p{text-align: center; font-size: 16px; color: #333; font-weight: 400;}
+	.list-item .num{color: #009688; font-size: 20px; font-weight: bold;}
+	.ad{padding: 7.5px;}
+	</style>
+	<script type="text/javascript">
+		 layui.use(['layer','form'],function(){
+			layer = layui.layer;
+			form = layui.form;
+			$ = layui.jquery;
+		});
+		function echartsData(){
+			
+			$.post('/index.php/index/Users/echartsData',function(res){
+				console.log(res)
+				if(res.code>0){
+					console.log('请求失败')
+				}else{
+					
+					for (var i = 0; i < 7; i++) {
+						
+						option.xAxis[0].data.push(res.data[i].datetime);
+						option.series[0].data.push(res.data[i].datas);
+					}
+					
+				}
+				
+			
+			},'json');
+			
+		}
+	</script>
+</head>
+<body style="padding: 15px;background: #f5f5f5;">
+
+	<div class="layui-col-md12">
+		<div class="layui-col-md6">
+			<div class="layui-card">
+				<div class="layui-card-header">基本信息</div>
+				<div class="layui-card-body">
+					<p>代理商账户：<span style="color: #007DDB;">{$data['users']['username']}</span></p>
+					<p>代理商姓名：{$data['users']['truename']}</p>
+					<p>账　户余额：<span style="color: red;">{$data['users']['balance']}</span> 猴币　<a href="JavaScript:;" onclick="recharge({$data['users']['id']})" style="color: #007DDB;">充值</a>
+					</p>
+					<p>代理商等级：{$data['level']['title']}</p>
+					<p>等　级描述：{$data['level']['desc']}</p>
+				</div>
+			</div>
+		</div>
+		<div class="layui-col-md6">
+			<div class="layui-card">
+				<div class="layui-card-header">账户信息</div>
+				<div class="layui-card-body">
+					<ul class="layui-col-md12">
+						<li class="layui-col-md6 list-item">
+							<p class="num">{$data.custumer.total}</p>
+							<p>客户数量</p>
+						</li>
+						<li class="layui-col-md6 list-item">
+							<p class="num">{$data.consume.total}</p>
+							<p>交易记录</p>
+						</li>
+						<li class="layui-col-md6 list-item">
+							<p class="num">{$data.goods.total}</p>
+							<p>商品数量</p>
+						</li>
+						<li class="layui-col-md6 list-item">
+							<p class="num">{$data.recharge.total}</p>
+							<p>充值记录</p>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+		
+	</div>
+	<div class="ad">
+		<img src="{$data['ad']['img']}" width="100%" height="100" >
+	</div>
+	
+	<div class="layui-col-md12">
+		<div class="layui-col-sm12">
+			 <div id="container" style="height: 450px"></div>
+		</div>
+	</div>
+	 
+       <script type="text/javascript" src="https://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+       <script type="text/javascript">
+		   
+		    
+		   
+			var dom = document.getElementById("container");
+			var myChart = echarts.init(dom);
+			var app = {};
+			option = null;
+			option = {
+				title: {
+					text: '日销售额统计表'
+				},
+				tooltip : {
+					trigger: 'axis',
+					axisPointer: {
+						type: 'cross',
+						label: {
+							backgroundColor: '#6a7985'
+						}
+					}
+				},
+				legend: {
+					data:['销售额']
+				},
+				toolbox: {
+					feature: {
+						saveAsImage: {}
+					}
+				},
+				grid: {
+					left: '3%',
+					right: '4%',
+					bottom: '3%',
+					containLabel: true
+				},
+				xAxis : [
+					{
+						type : 'category',
+						boundaryGap : false,
+						data : []
+					}
+				],
+				yAxis : [
+					{
+						type : 'value'
+					}
+				],
+				series : [
+					{
+						name:'销售额',
+						type:'line',
+						stack: '总量',
+						areaStyle: {},
+						data: []
+					},
+				]
+			};
+			
+			
+			
+			echartsData();
+			// 倒计时执行
+			setTimeout(()=>{
+				myChart.setOption(option, true);
+			},1000)
+			
+			
+			// 在线充值
+			function recharge(id){
+				layer.open({
+				  	type: 2,
+				  	title: '在线充值',
+				  	shade: 0.3,
+				  	area:['500px','500px'],
+				  	content: '/index.php/index/users/recharge?id='+ id 
+				});
+			}
+	
+       </script>
+	   
+	   
+	
+</body>
+</html>

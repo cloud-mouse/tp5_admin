@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>订单详情</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+</head>
+<body style="padding: 10px">
+		<div class="layui-form-item">
+			<label class="layui-form-label">订单id</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" value="{$data['item']['id']}"  readonly />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">代理商</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" value="{:isset($data['item']['uid'])? $data['users']['username']:''}"  readonly />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">代理商电话</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" value="{:isset($data['item']['uid'])? $data['users']['phone']:''}"  readonly />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">客户姓名</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" value="{:isset($data['item']['cid'])? $data['custumers']['cname']:''}"  readonly />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">客户电话</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" value="{:isset($data['item']['cid'])? $data['custumers']['phone']:''}"  readonly />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">客户公司</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" value="{:isset($data['item']['cid'])? $data['custumers']['company']:''}"  readonly />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">商品标题</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" value="{:isset($data['item']['gid'])? $data['goods']['title']:''}"  readonly />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">商品图片</label>
+			<div class="layui-input-inline">
+				<img id="pre_img" src="{:isset($data['item']['gid'])? $data['goods']['img']:''}" alt="" height="80" readonly />
+			</div>
+		</div>	
+		<div class="layui-form-item">
+			<label class="layui-form-label">商品价格</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" value="{:isset($data['item']['gid'])? $data['goods']['price']:''}" readonly />
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">商品描述</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" value="{:isset($data['item']['gid'])? $data['goods']['desc']:''}" readonly />
+			</div>
+		</div>
+		
+	</div>
+
+</body>
+</html>

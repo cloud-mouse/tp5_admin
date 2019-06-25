@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>添加代理等级</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+</head>
+<body style="padding: 10px">
+	<form class="layui-form">
+		<input type="hidden" name="id" value="{$data.item.id}">
+		<div class="layui-form-item">
+			<label class="layui-form-label">代理等级</label>
+			<div class="layui-input-inline">
+				<input type="text" class="layui-input" name="title" value="{$data.item.title}" >
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">折扣</label>
+			<div class="layui-input-inline">
+				<input type="text" class="layui-input" name="level" value="{$data.item.level}" >
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">等级描述</label>
+			<div class="layui-input-inline">
+				<input type="text" class="layui-input" name="desc" value="{$data.item.desc}">
+			</div>
+		</div>
+		
+		
+	</form>
+
+	<div class="layui-form-item">
+		<div class="layui-input-block">
+			<button class="layui-btn" onclick="save()">保存</button>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		layui.use(['layer','form'],function(){
+			layer = layui.layer;
+			form = layui.form;
+			$ = layui.jquery;
+		});
+
+		//保存代理等级
+		function save(){
+			var id = parseInt($('input[name="id"]').val());
+			var title = $.trim($('input[name="title"]').val());
+			var level = parseInt($('input[name="level"]').val());
+			if(title==''){
+				layer.alert('请输入等级名',{icon:2});
+				return;
+			}else 
+			if(level==''){
+				layer.alert('请输入代理等级',{icon:2});
+				return;
+			}else{
+				$.post('/admins.php/admins/Users/saveLevel',$('form').serialize(),function(res){
+					if(res.code>0){
+						layer.alert(res.msg,{icon:2});
+					}else{
+						layer.msg(res.msg);
+						setTimeout(function(){parent.window.location.reload();},1000);
+					}
+
+				},'json');
+			}
+
+		};
+		
+	</script>
+</body>
+</html>

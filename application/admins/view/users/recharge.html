@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>代理商充值</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+</head>
+<body style="padding: 10px">
+	<form class="layui-form">
+		<input type="hidden" name="userid" value="{$data.item.id}">
+		<input type="hidden" name="payway" value="1">
+		<div class="layui-form-item">
+			<label class="layui-form-label">代理商账号</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" name="username" value="{$data.item.username}"  {$data.item.id>0?'readonly':''} >
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">代理商名称</label>
+			<div class="layui-input-block">
+				<input type="text" class="layui-input" name="truename" value="{$data.item.truename}"  {$data.item.id>0?'readonly':''} >
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">账户余额</label>
+			<div class="layui-input-block">
+				<input type="number" class="layui-input" name="balance" value="{$data.item.balance}"  {$data.item.id>0?'readonly':''} >
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">充值本金</label>
+			<div class="layui-input-block">
+				<input type="number" class="layui-input" name="principal">
+			</div>
+		</div>
+		<div class="layui-form-item">
+			<label class="layui-form-label">赠送金额</label>
+			<div class="layui-input-block">
+				<input type="number" class="layui-input" name="bonus">
+			</div>
+		</div>
+		
+		
+	</form>
+
+	<div class="layui-form-item">
+		<div class="layui-input-block">
+			<button class="layui-btn" onclick="saveRecharge()">确认</button>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		layui.use(['layer','form'],function(){
+			layer = layui.layer;
+			form = layui.form;
+			$ = layui.jquery;
+		});
+
+		//保存会员等级
+		function saveRecharge(){
+			var id = parseInt($('input[name="id"]').val());
+			var username = $.trim($('input[name="username"]').val());
+			var amounts = parseInt($('input[name="amounts"]').val());
+			var principal = parseInt($('input[name="principal"]').val());
+			var bonus = parseInt($('input[name="bonus"]').val());
+			if(amounts==''){
+				layer.alert('请输入充值的金额',{icon:2});
+				return;
+			}else 
+			if(principal==''){
+				layer.alert('请输入充值的本金',{icon:2});
+				return;
+			}else{
+				$.post('/admins.php/admins/Users/saveRecharge',$('form').serialize(),function(res){
+					if(res.code>0){
+						layer.alert(res.msg,{icon:2});
+					}else{
+						layer.msg(res.msg);
+						setTimeout(function(){parent.window.location.reload();},1000);
+					}
+
+				},'json');
+			}
+
+		};
+		
+	</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>商品列表</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+	<style type="text/css">
+	.header span{background: #009688;padding: 10px;color: #fff}
+	.header div{border-bottom: 2px solid #009688;margin-top: 20px}
+	.header button{float: right;margin-right: 30px}
+	.layui-col-md2{text-align: center; padding: 20px 10px;}
+	</style>
+</head>
+<body style="padding: 15px">
+	<div class="header">
+		<span>商品市场</span>
+		<div></div>
+	</div>
+	
+	<div class="layui-tab layui-tab-card">
+	  <ul class="layui-tab-title">
+		{volist name="menu" id="vo" }
+		<li >{$vo.title}</li>
+		{/volist}
+	  </ul>
+	  <div class="layui-tab-content" style="height: auto; overflow: hidden;">
+		{volist name="data" id="vo" }
+		<div class="layui-tab-item layui-col-md12 ">
+			{volist name="vo.list" id="vs" }
+			<div class="layui-col-md2">
+				<img src="{$vs.img}" onclick="goodsClick({$vs.id})" alt="" width="100%" height="auto">
+			</div>
+			{/volist}
+		</div>
+		{/volist}
+	  </div>
+	  
+	</div>
+	
+
+
+	<script type="text/javascript">
+		layui.use(['layer','element'],function(){
+			layer = layui.layer;
+			$ = layui.jquery;
+			element = layui.element; //Tab的切换功能，切换事件监听等，需要依赖element模块
+
+			$('.site-demo-active').on('click', function(){
+				var othis = $(this), type = othis.data('type');
+				active[type] ? active[type].call(this, othis) : '';
+			  });
+			  
+			  element.on('tab(test)', function(elem){
+				location.hash = 'test='+ $(this).attr('lay-id');
+			  });
+			  
+			  
+			  // 给第一个分类添加样式
+			  $(".layui-tab-title li").first().addClass("layui-this");
+			  $(".layui-tab-item").first().addClass("layui-show");
+		
+		});
+		
+		// 点击商品购买
+		function　goodsClick(id){
+			layer.open({
+			  	type: 2,
+			  	title: '购买商品',
+			  	shade: 0.3,
+			  	area:['800px','600px'],
+			  	content: '/index.php/index/Goods/goodsClick?id='+ id 
+			});
+		}
+		
+
+
+	</script>
+	
+</body>
+</html>

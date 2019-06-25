@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>订单列表</title>
+	<link rel="stylesheet" type="text/css" href="__STATIC__/plugins/layui/css/layui.css">
+	<script type="text/javascript" src="__STATIC__/plugins/layui/layui.js"></script>
+	<style type="text/css">
+	.header span{background: #009688;padding: 10px;color: #fff}
+	.header div{border-bottom: 2px solid #009688;margin-top: 20px}
+	.header button{float: right;margin-right: 30px}
+	
+	</style>
+</head>
+<body style="padding: 15px">
+
+	<div class="header">
+		<span>订单列表</span>
+		<button  class="layui-btn layui-btn-xs" onclick="add()">添加</button>
+		<div></div>
+	</div>
+	<div class="layui-form-item" style="margin-top: 15px">
+		<div class="layui-input-inline">
+			<input type="text" class="layui-input" name="wd" id="wd" value="{$data.wd}" placeholder="请输入商品标题搜索"> 
+		</div>
+		<button class="layui-btn layui-btn-primary" onclick="searchs()"><i class="layui-icon">&#xe615;</i>搜索</button>
+	</div>
+
+	<table class="layui-table">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>代理商账户</th>
+				<th>代理商电话</th>
+				<th>客户姓名</th>
+				<th>客户公司</th>
+				<th>客户电话</th>
+				<th>购买产品</th>
+				<th>订单状态</th>
+				<th>支付方式</th>
+				<th>消耗猴币</th>
+				<th>创建时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+			{volist name="data.data.lists" id='vo'}
+			<tr>
+				<td>{$vo.id}</td>
+				<td>{:isset($data['users'][$vo['uid']])? $data['users'][$vo['uid']]['username']:''}</td>
+				<td>{:isset($data['users'][$vo['uid']])? $data['users'][$vo['uid']]['phone']:''}</td>
+				<td>{:isset($data['custumers'][$vo['cid']])? $data['custumers'][$vo['cid']]['cname']:''}</td>
+				<td>{:isset($data['custumers'][$vo['cid']])? $data['custumers'][$vo['cid']]['company']:''}</td>
+				<td>{:isset($data['custumers'][$vo['cid']])? $data['custumers'][$vo['cid']]['phone']:''}</td>
+				<td>{:isset($data['goods'][$vo['gid']])? $data['goods'][$vo['gid']]['title']:''}</td>
+				<td>{$vo.status==0? '<span style="color: red;">未完成</span>': '<span style="color: green;">已完成</span>'}</td>
+				<td>{$vo.payway==0? '<span style="color: red;">猴币支付</span>': ($vo.payway==1? '<span style="color: green;">微信支付</span>': '<span style="color: blue;">支付宝</span>')}</td>
+				<td>{$vo.price}</td>
+				<td>{:date('Y-m-d H:i:s',$vo.add_time)}</td>
+				<td>
+					<button class="layui-btn layui-btn-primary layui-btn-xs" onclick="changeStatus({$vo.id})">{$vo.status==1 ? '<span style="color: green">已完成</span>': '<span style="color: gray">未完成</span>'}</button>
+					<button class="layui-btn layui-btn-xs" onclick="check({$vo.id})">查看</button>
+					<button class="layui-btn layui-btn-danger layui-btn-xs" onclick="del({$vo.id})">删除</button>
+				</td>
+			</tr>
+			{/volist}
+		</tbody>
+	</table>
+	<div id="pages"></div>
+
+	<script type="text/javascript">
+		layui.use(['layer','laypage'],function(){
+			layer = layui.layer;
+			laypage= layui.laypage;
+			$ = layui.jquery;
+
+			//执行一个laypage实例
+			laypage.render({
+			    elem: 'pages' //注意，这里的 test1 是 ID，不用加 # 号
+			    ,count: {$data.data.total} //数据总数，从服务端得到
+			    ,limit: {$data.pagesize}
+			    ,curr: {$data.page} //获取起始页
+  				,hash: 'fenye' //自定义hash值
+			    ,jump: function(obj, first){
+			    //obj包含了当前分页的所有参数，比如：
+			    console.log(obj.curr); //得到当前页，以便向服务端请求对应页的数据。
+			    console.log(obj.limit); //得到每页显示的条数
+			    
+			    //首次不执行
+			    if(!first){
+			    	searchs(obj.curr);
+			    }
+			  }
+			});
+		});
+
+		
+
+		// 添加订单
+		function check(id){
+			layer.open({
+			  	type: 2,
+			  	title: '查看订单',
+			  	shade: 0.3,
+			  	area:['600px','700px'],
+			  	content: '/admins.php/admins/order/check?id='+ id 
+			});
+		}
+
+		//删除订单
+		function del(id){
+			layer.confirm('确定要删除吗？',{
+				icon:3,
+				btn: ['确认','取消']
+
+			},function(){
+				$.post('/admins.php/admins/order/del',{'id':id},function(res){
+					if(res.code>0){
+						layer.alert(res.msg,{icon:2});
+					}else{
+						layer.msg(res.msg);
+						setTimeout(function(){window.location.reload();},1000);
+					}
+				},'json');
+			});
+		}
+
+		// 搜索
+		function searchs(curpage){
+			var wd = $.trim($('#wd').val());
+			var url = '/admins.php/admins/order/index?page='+curpage;
+			if(wd){
+				url += '&wd='+wd;
+			}
+			window.location.href = url;
+		}
+
+		// 改变订单状态
+		function changeStatus(id){
+			$.post('/admins.php/admins/order/changeStatus',{'id': id},function(res){
+					if(res.code>0){
+						layer.alert(res.msg,{icon:2});
+					}else{
+						layer.msg(res.msg);
+						setTimeout(function(){window.location.reload();},1000);
+					}
+				},'json');
+		}
+	</script>
+	
+</body>
+</html>
